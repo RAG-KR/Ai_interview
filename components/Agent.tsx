@@ -5,6 +5,7 @@ import { interviewer } from "@/constants"
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import {vapi} from '@/lib/vapi.sdk'
+import { createFeedback } from '@/lib/actions/general.action'
 
 
 
@@ -25,7 +26,6 @@ const Agent = ({ userName, userId ,type,questions, interviewId}:AgentProps) => {
     const [callStatus, setCallStatus] = useState<CallStatus>(CallStatus.INACTIVE );
     const [messages, setMessages] = useState<SavedMessage[]>([]);
     const [isSpeaking, setIsSpeaking] = useState(false); 
-    // const lastMessage = messages[messages.length -1];
 
     useEffect(() => {
         const onCallStart = () => setCallStatus(CallStatus.ACTIVE)
@@ -62,11 +62,11 @@ const Agent = ({ userName, userId ,type,questions, interviewId}:AgentProps) => {
         const handleGenerateFeedback = async (messages: SavedMessage[]) => {
             console.log('generate feedback here.')
             
-            //TODO:create a server action to generate feedback and redirect to feedback page
-            const {success, id} = {
-                success:true,
-                id:'feedback-id'
-            }
+            const {success, feedbackId:id} = await createFeedback({
+                interviewId: interviewId!,
+                userId: userId!,
+                transcript: messages,
+            })
 
             if (success && id){
                 router.push(`/interview/${interviewId}/feedback`);
